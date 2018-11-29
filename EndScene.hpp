@@ -13,23 +13,23 @@
 #pragma comment(lib, "user32.lib")
 #include "menu.hpp"
 
-using EndSceneFn = long(__stdcall *)(IDirect3DDevice9*); 
+using end_scene_fn = long(__stdcall *)(IDirect3DDevice9*); 
 
 extern IMGUI_API LRESULT   ImGui_ImplDX9_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace original 
 {
-	WNDPROC proc = nullptr;
-	EndSceneFn endscene = nullptr;
+	WNDPROC wnd_proc = nullptr;
+	end_scene_fn end_scene = nullptr;
 }
 
-LRESULT __stdcall proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT __stdcall wnd_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	ImGui_ImplDX9_WndProcHandler(hwnd, msg, wParam, lParam);
-	return CallWindowProcW(original::proc, hwnd, msg, wParam, lParam);
+	return CallWindowProcW(original::wnd_proc, hwnd, msg, wParam, lParam);
 }
 
-void MenuColors(ImGuiStyle& style)
+void setup_colors(ImGuiStyle& style)
 {
 	style.Colors[ImGuiCol_Tab] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
 	style.Colors[ImGuiCol_TabActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
@@ -79,7 +79,7 @@ void MenuColors(ImGuiStyle& style)
 	style.Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
 }
 
-void MenuStyles(ImGuiStyle& style)
+void setup_styles(ImGuiStyle& style)
 {
 	style.Alpha = 1.0f;             // Global alpha applies to everything in ImGui
 	style.WindowPadding = ImVec2(8, 8);      // Padding within a window
@@ -104,19 +104,19 @@ void MenuStyles(ImGuiStyle& style)
 
 }
 
-long __stdcall hkEndScene(IDirect3DDevice9* device)
+long __stdcall hooked_end_scene(IDirect3DDevice9* device)
 {
 	if (static bool initialised = false; !initialised)
 	{
 		auto gmod = FindWindowW(L"Valve001", nullptr);
 
-		original::proc = reinterpret_cast<WNDPROC>(SetWindowLongPtrW(gmod, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(proc)));
+		original::wnd_proc = reinterpret_cast<WNDPROC>(SetWindowLongPtrW(gmod, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(wnd_proc)));
 
 		ImGui_ImplDX9_Init(gmod, device);
 		ImGuiStyle& style = ImGui::GetStyle();
 
-		MenuStyles(ImGui::GetStyle());
-		MenuColors(ImGui::GetStyle());
+		setup_styles(ImGui::GetStyle());
+		setup_colors(ImGui::GetStyle());
 
 		auto& io = ImGui::GetIO();
 		ImFontConfig config;
@@ -132,13 +132,13 @@ long __stdcall hkEndScene(IDirect3DDevice9* device)
 	else
 	{
 		ImGui_ImplDX9_NewFrame();
-		RenderMenu();
+		menu_render();
 		ImGui::Render();
 	}
-	return original::endscene(device);
+	return original::end_scene(device);
 }  
 
 namespace globals
 {
-	inline IDirect3DDevice9* pDevice;
+	inline IDirect3DDevice9* device;
 }

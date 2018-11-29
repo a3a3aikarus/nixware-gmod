@@ -2,16 +2,16 @@
 #include "sdk.hpp"
 #include "drawmanager.hpp"
 
-typedef void(__thiscall *tCreateMove)(void*, int, float, bool);
+typedef void(__thiscall *create_move_fn)(void*, int, float, bool);
 
 namespace original
 {
-	tCreateMove CreateMove = nullptr;
+	create_move_fn create_move = nullptr;
 }
 
-void __fastcall hkCreateMove(void* thiscall, void* _EDX, int sequence_number, float input_sample_frametime, bool active)
+void __fastcall hooked_create_move(void* thiscall, void* _EDX, int sequence_number, float input_sample_frametime, bool active)
 {
-	original::CreateMove(thiscall, sequence_number, input_sample_frametime, active);
+	original::create_move(thiscall, sequence_number, input_sample_frametime, active);
 
 	if (!globals::input)
 		return;

@@ -18,61 +18,45 @@
 
 namespace signature
 {
-	namespace detail
+	uint64_t find_signature(const char* szModule, const char* szSignature)
 	{
-		template<typename chr = char>
-		constexpr uint8_t hex(const chr n)
-		{
-			return static_cast<uint8_t>(9 * (n >> 6) + (n & 15));
+		MODULEINFO modInfo;
+		GetModuleInformation(GetCurrentProcess(), GetModuleHandleA(szModule), &modInfo, sizeof(MODULEINFO));
+		DWORD startAddress = (DWORD)modInfo.lpBaseOfDll;
+		DWORD endAddress = startAddress + modInfo.SizeOfImage;
+		const char* pat = szSignature;
+		DWORD firstMatch = 0;
+		for (DWORD pCur = startAddress; pCur < endAddress; pCur++) {
+			if (!*pat) return firstMatch;
+			if (*(PBYTE)pat == '\?' || *(BYTE*)pCur == getByte(pat)) {
+				if (!firstMatch) firstMatch = pCur;
+				if (!pat[2]) return firstMatch;
+				if (*(PWORD)pat == '\?\?' || *(PBYTE)pat != '\?') pat += 3;
+				else pat += 2;    //one ?
+			}
+			else {
+				pat = szSignature;
+				firstMatch = 0;
+			}
 		}
-
-		template<typename chr = char>
-		constexpr uint8_t eval(const chr* str, const size_t i)
-		{
-			return str[i * 3] == 63 ? 63u : hex(str[i * 3]) * 16 + hex(str[i * 3 + 1]);
-		}
-
-		template<typename chr = char, size_t... n>
-		constexpr std::array<uint8_t, sizeof...(n)> stream(const chr* str, std::index_sequence<n...>)
-		{
-			return{ eval(str, n)... };
-		}
-
-		template<typename chr = char, size_t len>
-		constexpr auto convert(const chr(&str)[len])
-		{
-			static_assert(!(len % 3), "Pattern length fail");
-			return stream(str, std::make_index_sequence<len / 3>());
-		}
+		return NULL;
 	}
 
-	template<typename chr = char, size_t len>
-	uintptr_t search(const uint8_t* start, const size_t size, std::array<chr, len>& pattern)
+	DWORD find_pattern(DWORD start_offset, DWORD size, BYTE* pattern, char mask[])
 	{
-		// auto pattern = detail::convert(signature);
-		auto result = std::search(start, start + size, pattern.begin(), pattern.end(), [](uint8_t lhs, uint8_t rhs)
+		DWORD pos = 0;
+		int searchLen = strlen(mask) - 1;
+
+		for (DWORD retAddress = start_offset; retAddress < start_offset + size; retAddress++)
 		{
-			return lhs == rhs || rhs == '?';
-		});
-
-		return result == start ? 0 : reinterpret_cast<uintptr_t>(result);
-	}
-
-	template<typename chr = char, size_t len>
-	uintptr_t search(HMODULE module, std::array<chr, len> pattern)
-	{
-		assert(module);
-
-		uint8_t* start = reinterpret_cast<uint8_t*>(module);
-		auto	 hdr   = reinterpret_cast<PIMAGE_NT_HEADERS>(start + reinterpret_cast<PIMAGE_DOS_HEADER>(start)->e_lfanew);
-		size_t   size  = hdr->OptionalHeader.SizeOfImage;
-
-		// auto pattern = detail::convert(signature);
-		auto result = std::search(start, start + size, pattern.begin(), pattern.end(), [](uint8_t _, uint8_t __)
-		{
-			return _ == __ || __ == 63;
-		});
-
-		return result == start ? 0 : reinterpret_cast<uintptr_t>(result);
+			if (*(BYTE*)retAddress == pattern[pos] || mask[pos] == '?') {
+				if (mask[pos + 1] == '\0')
+					return (retAddress - searchLen);
+				pos++;
+			}
+			else
+				pos = 0;
+		}
+		return NULL;
 	}
 }

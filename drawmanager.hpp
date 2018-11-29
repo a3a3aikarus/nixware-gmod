@@ -2,59 +2,59 @@
 #include "ISurface.hpp"
 #include "particles.hpp"
 
-particle_network* Particles = nullptr;
-
 namespace drawmanager
 {
+	particle_network* particles = nullptr;
+
 	namespace fonts
 	{
-		DWORD Watermark;
-		DWORD Esp;
+		DWORD watermark;
+		DWORD esp;
 	}
 
-	void SetupFonts()
+	void setup_fonts()
 	{
-		drawmanager::fonts::Watermark = globals::surface->FontCreate();
-		drawmanager::fonts::Esp = globals::surface->FontCreate();
+		drawmanager::fonts::watermark = globals::surface->create_font();
+		drawmanager::fonts::esp = globals::surface->create_font();
 
-		globals::surface->SetFontGlyphSet(drawmanager::fonts::Esp, ("Calibri"), 14, 150, 0, 0, FONTFLAG_OUTLINE /*| FONTFLAG_ANTIALIAS*/);
-		globals::surface->SetFontGlyphSet(drawmanager::fonts::Watermark, ("Arial"), 16, 800, 0, 0, FONTFLAG_OUTLINE /*| FONTFLAG_ANTIALIAS*/);
+		globals::surface->set_font_glyph_set(drawmanager::fonts::esp, ("Calibri"), 14, 150, 0, 0, FONTFLAG_OUTLINE /*| FONTFLAG_ANTIALIAS*/);
+		globals::surface->set_font_glyph_set(drawmanager::fonts::watermark, ("Arial"), 16, 800, 0, 0, FONTFLAG_OUTLINE /*| FONTFLAG_ANTIALIAS*/);
 	}
 
 	void DrawLine(int x0, int y0, int x1, int y1, Color color)
 	{
-		globals::surface->DrawSetColor(color);
-		globals::surface->DrawLine(x0, y0, x1, y1);
+		globals::surface->draw_set_color(color);
+		globals::surface->draw_line(x0, y0, x1, y1);
 	}
 
-	void DrawRectFilled(int x0, int y0, int x1, int y1, Color color)
+	void draw_rect_filled(int x0, int y0, int x1, int y1, Color color)
 	{
-		globals::surface->DrawSetColor(color);
-		globals::surface->DrawFilledRect(x0, y0, x1, y1);
+		globals::surface->draw_set_color(color);
+		globals::surface->draw_filled_rect(x0, y0, x1, y1);
 	}
 
-	void FillRGBA(int x, int y, int w, int h, Color c)
+	void fill_rgba(int x, int y, int w, int h, Color c)
 	{
-		globals::surface->DrawSetColor(c);
-		globals::surface->DrawFilledRect(x, y, x + w, y + h);
+		globals::surface->draw_set_color(c);
+		globals::surface->draw_filled_rect(x, y, x + w, y + h);
 	}
 
-	void DrawRect(int x0, int y0, int x1, int y1, Color color)
+	void draw_rect(int x0, int y0, int x1, int y1, Color color)
 	{
-		globals::surface->DrawSetColor(color);
-		globals::surface->DrawOutlinedRect(x0, y0, x1, y1);
+		globals::surface->draw_set_color(color);
+		globals::surface->draw_outlined_rect(x0, y0, x1, y1);
 	}
 
-	void DrawOutlinedRect(int x0, int y0, int x1, int y1, Color color)
+	void draw_outlined_rect(int x0, int y0, int x1, int y1, Color color)
 	{
-		globals::surface->DrawSetColor(color);
-		globals::surface->DrawOutlinedRect(x0, y0, x1, y1);
-		globals::surface->DrawSetColor(Color(0, 0, 0, 255));
-		globals::surface->DrawOutlinedRect(x0 - 1, y0 - 1, x1 + 1, y1 + 1);
-		globals::surface->DrawOutlinedRect(x0 + 1, y0 + 1, x1 - 1, y1 - 1);
+		globals::surface->draw_set_color(color);
+		globals::surface->draw_outlined_rect(x0, y0, x1, y1);
+		globals::surface->draw_set_color(Color(0, 0, 0, 255));
+		globals::surface->draw_outlined_rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1);
+		globals::surface->draw_outlined_rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1);
 	}
 
-	void DrawString(DWORD font, int x, int y, Color col, const char *pszText, ...)
+	void draw_string(DWORD font, int x, int y, Color col, const char *pszText, ...)
 	{
 		if (pszText == NULL)
 			return;
@@ -68,9 +68,9 @@ namespace drawmanager
 		va_end(va_alist);
 
 		wsprintfW(szString, L"%S", szBuffer);
-		globals::surface->DrawSetTextPos(x, y);
-		globals::surface->DrawSetTextFont(font);
-		globals::surface->DrawSetTextColor(col.r(), col.g(), col.b(), col.a());
-		globals::surface->DrawPrintText(szString, wcslen(szString));
+		globals::surface->draw_set_text_pos(x, y);
+		globals::surface->draw_set_text_font(font);
+		globals::surface->draw_set_text_color(col.r(), col.g(), col.b(), col.a());
+		globals::surface->draw_print_text(szString, wcslen(szString));
 	}
 }

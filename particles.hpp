@@ -3,9 +3,9 @@
 #include "ISurface.hpp"
 #include "pattern.hpp"
 
-#define RandomInt(min, max) (rand() % (max - min + 1) + min)
+#define random_int(min, max) (rand() % (max - min + 1) + min)
 
-float RandomFloat(float min, float max)
+float random_float(float min, float max)
 {
 	typedef float(*RandomFloat_t)(float, float);
 	return ((RandomFloat_t)GetProcAddress(GetModuleHandle("vstdlib.dll"), "RandomFloat")) (min, max);
@@ -52,7 +52,7 @@ public:
 		}
 
 		int x, y;
-		globals::surface->SurfaceGetCursorPos(x, y);
+		globals::surface->surface_get_cursor_pos(x, y);
 
 		auto mouse_particle = particle(x, y, 1, 0, 0);
 
@@ -76,26 +76,26 @@ private:
 	{
 		particles.push_back(
 			particle(
-				RandomInt(0, screen_width),
-				RandomInt(0, screen_height),
-				RandomFloat(0.5f, 1),
-				RandomFloat(-0.1f, 0.1f),
-				RandomFloat(-0.1f, 0.1f)
+				random_int(0, screen_width),
+				random_int(0, screen_height),
+				random_float(0.5f, 1),
+				random_float(-0.1f, 0.1f),
+				random_float(-0.1f, 0.1f)
 			)
 		);
 	}
 
 	void draw_particle(particle& particle) const
 	{
-		globals::surface->DrawSetColor(Color(255, 255, 255, particle.opacity * alpha));
-		globals::surface->DrawOutlinedCircle(particle.x, particle.y, 1, 8);
-		globals::surface->DrawOutlinedCircle(particle.x, particle.y, 2, 8);
+		globals::surface->draw_set_color(Color(255, 255, 255, particle.opacity * alpha));
+		globals::surface->draw_outlined_circle(particle.x, particle.y, 1, 8);
+		globals::surface->draw_outlined_circle(particle.x, particle.y, 2, 8);
 	}
 
 	void draw_connection(particle& a, particle& b, const float opacity) const
 	{
-		globals::surface->DrawSetColor(Color(255, 255, 255, opacity * alpha));
-		globals::surface->DrawLine(a.x, a.y, b.x, b.y);
+		globals::surface->draw_set_color(Color(255, 255, 255, opacity * alpha));
+		globals::surface->draw_line(a.x, a.y, b.x, b.y);
 	}
 
 	void find_connections(particle& particle, const float max_distance)

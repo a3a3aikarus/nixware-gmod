@@ -21,25 +21,25 @@ public:
 		return *(method<get_client_class_t>(2, networkable)(networkable) + 2);
 	}
 
-	inline model_t* GetModel()
+	inline model_t* get_model()
 	{
 		void *pRenderable = (void*)(this + 0x4);
 		typedef model_t*(__thiscall* OriginalFn)(PVOID);
 		return GetVFunc<OriginalFn>(pRenderable, 9)(pRenderable);
 	}
 
-	model_t* GetModel2()
+	model_t* get_model2()
 	{
 		return *(model_t**)((DWORD)this + 0x6C);
 	}
 
-	inline Vector& GetAbsOrigin()
+	inline Vector& get_abs_origin()
 	{
 		typedef Vector& (__thiscall* OriginalFn)(void*);
 		return ((OriginalFn)GetFunction(this, 10))(this);
 	}
 
-	inline Vector& GetAbsAngles()
+	inline Vector& get_abs_angles()
 	{
 		typedef Vector& (__thiscall* OriginalFn)(void*);
 		return ((OriginalFn)GetFunction(this, 11))(this);
@@ -212,12 +212,6 @@ public:
 		return name;
 	} 
 
-	inline Vector& get_abs_origin()
-	{
-		typedef Vector&(__thiscall* OriginalFn)(PVOID);
-		return GetVFunc< OriginalFn >(this, 10)(this);
-	} 
-
 	inline Vector get_eye_pos()
 	{
 		Vector vecViewOffset = *reinterpret_cast<Vector*>((DWORD)this + 0xE8);
@@ -230,7 +224,7 @@ public:
 		return (lifestate == 0);
 	}
 
-	inline bool SetupBones(matrix3x4_t *pBoneToWorldOut, int nMaxBones, int boneMask, float currentTime)
+	inline bool setup_bones(matrix3x4_t *pBoneToWorldOut, int nMaxBones, int boneMask, float currentTime)
 	{
 		void *pRenderable = (void*)(this + 0x4);
 		typedef bool(__thiscall* OriginalFn)(PVOID, matrix3x4_t*, int, int, float);

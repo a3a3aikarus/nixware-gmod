@@ -15,52 +15,10 @@
 #include "CreateMove.hpp"
 #include "SceneEnd.hpp"
 
-vfunc_hook ppanel;
-vfunc_hook renderview;
-vfunc_hook d3d;
-vfunc_hook client;
-
-uint64_t FindSignature(const char* szModule, const char* szSignature)
-{
-	MODULEINFO modInfo;
-	GetModuleInformation(GetCurrentProcess(), GetModuleHandleA(szModule), &modInfo, sizeof(MODULEINFO));
-	DWORD startAddress = (DWORD)modInfo.lpBaseOfDll;
-	DWORD endAddress = startAddress + modInfo.SizeOfImage;
-	const char* pat = szSignature;
-	DWORD firstMatch = 0;
-	for (DWORD pCur = startAddress; pCur < endAddress; pCur++) {
-		if (!*pat) return firstMatch;
-		if (*(PBYTE)pat == '\?' || *(BYTE*)pCur == getByte(pat)) {
-			if (!firstMatch) firstMatch = pCur;
-			if (!pat[2]) return firstMatch;
-			if (*(PWORD)pat == '\?\?' || *(PBYTE)pat != '\?') pat += 3;
-			else pat += 2;    //one ?
-		}
-		else {
-			pat = szSignature;
-			firstMatch = 0;
-		}
-	}
-	return NULL;
-}
-
-DWORD FindPattern(DWORD start_offset, DWORD size, BYTE* pattern, char mask[])
-{
-	DWORD pos = 0;
-	int searchLen = strlen(mask) - 1;
-
-	for (DWORD retAddress = start_offset; retAddress < start_offset + size; retAddress++)
-	{
-		if (*(BYTE*)retAddress == pattern[pos] || mask[pos] == '?') {
-			if (mask[pos + 1] == '\0')
-				return (retAddress - searchLen);
-			pos++;
-		}
-		else
-			pos = 0;
-	}
-	return NULL;
-}
+vfunc_hook panel_hook;
+vfunc_hook renderview_hook;
+vfunc_hook d3d_hook;
+vfunc_hook client_hook;
 
 using color_t = uint8_t[4];
 void(__cdecl* datapaths)(void) = nullptr;
@@ -81,8 +39,7 @@ unsigned long __stdcall init(void* dll)
 	globals::trace = interface::get<IEngineTrace>(GetModuleHandleW(L"engine.dll"), "EngineTraceClient003");
 	globals::modelinfo = interface::get<IVModelInfo>(GetModuleHandleW(L"engine.dll"), "VModelInfoClient006");
 	globals::renderview = interface::get<RenderView>(GetModuleHandleW(L"engine.dll"), "VEngineRenderView014");
-
-	globals::pDevice = **(IDirect3DDevice9***)(FindSignature("shaderapidx9.dll", "A1 ? ? ? ? 50 8B 08 FF 51 0C") + 1);
+	globals::device = **(IDirect3DDevice9***)(signature::find_signature("shaderapidx9.dll", "A1 ? ? ? ? 50 8B 08 FF 51 0C") + 1);
 
 	printf("globals::engine: 0x%X\n", (DWORD)globals::engine);
 	printf("globals::entitylist: 0x%X\n", (DWORD)globals::entitylist);
@@ -92,11 +49,12 @@ unsigned long __stdcall init(void* dll)
 	printf("globals::trace: 0x%X\n", (DWORD)globals::trace);
 	printf("globals::modelinfo: 0x%X\n", (DWORD)globals::modelinfo);
 	printf("globals::renderview: 0x%X\n", (DWORD)globals::renderview);
-	printf("globals::pDevice: 0x%X\n", (DWORD)globals::pDevice);
+	printf("globals::pDevice: 0x%X\n", (DWORD)globals::device);
 	globals::engine->get_screen_size(globals::screenweight, globals::screenheight);
 
 	using datapack_paths_t = void(__cdecl*)();
-	datapaths = reinterpret_cast<datapack_paths_t>(signature::search(GetModuleHandleW(L"client.dll"), signature::detail::convert("55 8B EC 8B 0D ?? ?? ?? ?? 83 EC 7C")));
+	datapaths = reinterpret_cast<datapack_paths_t>(signature::find_signature("client.dll", "55 8B EC 8B 0D ?? ?? ?? ?? 83 EC 7C"));
+
 	// datapaths();
 
 	auto chl = interface::get<void>(GetModuleHandleW(L"client.dll"), "VClient");
@@ -106,57 +64,59 @@ unsigned long __stdcall init(void* dll)
 		netvars::store(classes->table->table, classes->table);
 
 	// PaintTraverse Hook
-	if (ppanel.setup(globals::panel)) {
-		original::PaintTraverse = ppanel.get_original<tPaintTraverse>(41);
+	if (panel_hook.setup(globals::panel)) {
+		original::paint_traverse = panel_hook.get_original<paint_traverse_fn>(41);
 		printf("Original PaintTraverse founded \n");
-		ppanel.hook_index(41, hkPaintTraverse);
+		panel_hook.hook_index(41, hkPaintTraverse);
 		printf("PaintTraverse founded \n");
 	}
 
 	// EndScene & Reset Hook
-	if (d3d.setup(globals::pDevice)) {
-		original::endscene = d3d.get_original<EndSceneFn>(42);
+	if (d3d_hook.setup(globals::device)) {
+		original::end_scene = d3d_hook.get_original<end_scene_fn>(42);
 		printf("Original EndScene founded \n");
-		d3d.hook_index(42, hkEndScene);
+		d3d_hook.hook_index(42, hooked_end_scene);
 		printf("EndScene hooked \n");
 
-		original::reset = d3d.get_original<ResetFn>(16);
+		original::reset = d3d_hook.get_original<reset_fn>(16);
 		printf("Original Reset founded \n");
-		d3d.hook_index(16, hkReset);
+		d3d_hook.hook_index(16, hooked_reset);
 		printf("Reset hooked \n");
 	}
 
 	// SceneEnd hook
-	if (renderview.setup(globals::renderview)) {
-		original::sceneend = renderview.get_original<tSceneEnd>(9);
+	if (renderview_hook.setup(globals::renderview)) {
+		original::scene_end = renderview_hook.get_original<scene_end_fn>(9);
 		printf("Original SceneEnd founded \n");
-		renderview.hook_index(9, hkSceneEnd);
+		renderview_hook.hook_index(9, hooked_scene_end);
 		printf("SceneEnd hooked \n");
 	}
 
 	// CreateMove Hook
-	if (client.setup(globals::client)) {
-		original::CreateMove = client.get_original<tCreateMove>(21);
-		DWORD dwInputPointer = FindPattern((DWORD)original::CreateMove, 0x100, (byte*)"\x8B\x0D", "xx");
-		if (dwInputPointer != NULL)
+	if (client_hook.setup(globals::client)) {
+		original::create_move = client_hook.get_original<create_move_fn>(21);
+		DWORD dw_input_pointer = signature::find_pattern((DWORD)original::create_move, 0x100, (byte*)"\x8B\x0D", "xx");
+		if (dw_input_pointer != NULL)
 		{
-			dwInputPointer += 0x2;
-			globals::input = **(CInput***)dwInputPointer;
+			dw_input_pointer += 0x2;
+			globals::input = **(CInput***)dw_input_pointer;
 			printf("globals::input: 0x%X\n", (DWORD)globals::input);
 
 		}
-		client.hook_index(21, hkCreateMove);
+		client_hook.hook_index(21, hooked_create_move);
 	}
 
-	Particles = new particle_network(globals::screenweight, globals::screenheight, 60);
+	drawmanager::particles = new particle_network(globals::screenweight, globals::screenheight, 60);
 
 	for (; !(GetAsyncKeyState(VK_HOME) & 1); std::this_thread::sleep_for(std::chrono::milliseconds(25)));
 
-	SetWindowLongPtrW(FindWindowW(L"Valve001", nullptr), GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(original::proc));
+	SetWindowLongPtrW(FindWindowW(L"Valve001", nullptr), GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(original::wnd_proc));
 
-	d3d.unhook_all();
-	ppanel.unhook_all();
-	client.unhook_all();
+	d3d_hook.unhook_all();
+	panel_hook.unhook_all();
+	client_hook.unhook_all();
+
+	FreeConsole();
 
 	ImGui_ImplDX9_Shutdown();
 

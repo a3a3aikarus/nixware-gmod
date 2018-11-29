@@ -1,14 +1,14 @@
 #pragma once
 #include "sdk.hpp"
 
-typedef void(__fastcall *tSceneEnd)(void*, void*);
+typedef void(__fastcall *scene_end_fn)(void*, void*);
 
 namespace original
 {
-	tSceneEnd sceneend = nullptr;
+	scene_end_fn scene_end = nullptr;
 }
 
-void __fastcall hkSceneEnd(void* thisptr, void* edx)
+void __fastcall hooked_scene_end(void* thisptr, void* edx)
 {
-	original::sceneend(thisptr, edx);
+	original::scene_end(thisptr, edx);
 }

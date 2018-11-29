@@ -27,7 +27,7 @@ public:
 		return method<get_local_player_t>(12, this)(this);
 	}
 
-	inline float GetLastTimeStamp(void)
+	inline float get_last_time_stamp(void)
 	{
 		typedef float(__thiscall* OriginalFn)(PVOID);
 		return GetVFunc<OriginalFn>(this, 14)(this);

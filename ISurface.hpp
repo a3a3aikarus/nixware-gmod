@@ -52,112 +52,112 @@ enum class FontDrawType {
 class ISurface
 {
 public:
-	void DrawSetColor(Color col)
+	void draw_set_color(Color col)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, Color);
-		return GetVFunc<OriginalFn>(this, 10)(this, col);
+		typedef void(__thiscall* original_fn)(PVOID, Color);
+		return GetVFunc<original_fn>(this, 10)(this, col);
 	}
 
-	void UnlockCursor()
+	void unlock_cursor()
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID);
-		GetVFunc< OriginalFn >(this, 61)(this);
+		typedef void(__thiscall* original_fn)(PVOID);
+		GetVFunc< original_fn >(this, 61)(this);
 	}
 
-	void LockCursor()
+	void lock_cursor()
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID);
-		GetVFunc< OriginalFn >(this, 62)(this);
+		typedef void(__thiscall* original_fn)(PVOID);
+		GetVFunc< original_fn >(this, 62)(this);
 	}
 
-	void PushMakeCurrent(VPANEL panel, bool useInsets)
+	void push_make_current(VPANEL panel, bool useInsets)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, VPANEL, bool);
-		return GetVFunc<OriginalFn>(this, 8)(this, panel, useInsets);
+		typedef void(__thiscall* original_fn)(PVOID, VPANEL, bool);
+		return GetVFunc<original_fn>(this, 8)(this, panel, useInsets);
 	}
 
-	void PopMakeCurrent(VPANEL panel)
+	void pop_make_current(VPANEL panel)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, VPANEL);
-		return GetVFunc<OriginalFn>(this, 9)(this, panel);
+		typedef void(__thiscall* original_fn)(PVOID, VPANEL);
+		return GetVFunc<original_fn>(this, 9)(this, panel);
 	}
 
-	void DrawOutlinedRect(int x0, int y0, int x1, int y1)
+	void draw_outlined_rect(int x0, int y0, int x1, int y1)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, int, int, int, int);
-		GetVFunc<OriginalFn>(this, 14)(this, x0, y0, x1, y1);
+		typedef void(__thiscall* original_fn)(PVOID, int, int, int, int);
+		GetVFunc<original_fn>(this, 14)(this, x0, y0, x1, y1);
 	}
 
-	void DrawFilledRect(int x0, int y0, int x1, int y1)
+	void draw_filled_rect(int x0, int y0, int x1, int y1)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, int, int, int, int);
-		GetVFunc<OriginalFn>(this, 12)(this, x0, y0, x1, y1);
+		typedef void(__thiscall* original_fn)(PVOID, int, int, int, int);
+		GetVFunc<original_fn>(this, 12)(this, x0, y0, x1, y1);
 	}
 
-	void SurfaceGetCursorPos(int &x, int &y)
+	void surface_get_cursor_pos(int &x, int &y)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, int&, int&);
-		GetVFunc<OriginalFn>(this, 97)(this, x, y);
+		typedef void(__thiscall* original_fn)(PVOID, int&, int&);
+		GetVFunc<original_fn>(this, 97)(this, x, y);
 	}
 
-	void DrawOutlinedCircle(int x, int y, int radius, int segments)
+	void draw_outlined_circle(int x, int y, int radius, int segments)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, int, int, int, int);
-		GetVFunc<OriginalFn>(this, 100)(this, x, y, radius, segments);
+		typedef void(__thiscall* original_fn)(PVOID, int, int, int, int);
+		GetVFunc<original_fn>(this, 100)(this, x, y, radius, segments);
 	}
 
-	unsigned long FontCreate()
+	unsigned long create_font()
 	{
-		typedef unsigned int(__thiscall* OriginalFn)(PVOID);
-		return GetVFunc<OriginalFn>(this, 66)(this);
+		typedef unsigned int(__thiscall* original_fn)(PVOID);
+		return GetVFunc<original_fn>(this, 66)(this);
 	}
 
-	void SetFontGlyphSet(unsigned long font, const char* windowsFontName, int tall, int weight, int blur, int scanlines, int flags)
+	void set_font_glyph_set(unsigned long font, const char* windowsFontName, int tall, int weight, int blur, int scanlines, int flags)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, unsigned long, const char*, int, int, int, int, int, int, int);
-		GetVFunc<OriginalFn>(this, 67)(this, font, windowsFontName, tall, weight, blur, scanlines, flags, 0, 0);
+		typedef void(__thiscall* original_fn)(PVOID, unsigned long, const char*, int, int, int, int, int, int, int);
+		GetVFunc<original_fn>(this, 67)(this, font, windowsFontName, tall, weight, blur, scanlines, flags, 0, 0);
 	}
 
-	void DrawLine(int x0, int y0, int x1, int y1)
+	void draw_line(int x0, int y0, int x1, int y1)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, int, int, int, int);
-		GetVFunc<OriginalFn>(this, 15)(this, x0, y0, x1, y1);
+		typedef void(__thiscall* original_fn)(PVOID, int, int, int, int);
+		GetVFunc<original_fn>(this, 15)(this, x0, y0, x1, y1);
 	}
 
-	void DrawSetTextFont(unsigned long font)
+	void draw_set_text_font(unsigned long font)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, unsigned long);
-		GetVFunc<OriginalFn>(this, 17)(this, font); // 21 mb
+		typedef void(__thiscall* original_fn)(PVOID, unsigned long);
+		GetVFunc<original_fn>(this, 17)(this, font); // 21 mb
 	}
 
-	void DrawSetTextColor(int r, int g, int b, int a)
+	void draw_set_text_color(int r, int g, int b, int a)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, int, int, int, int);
-		GetVFunc<OriginalFn>(this, 19)(this, r, g, b, a); // 19
+		typedef void(__thiscall* original_fn)(PVOID, int, int, int, int);
+		GetVFunc<original_fn>(this, 19)(this, r, g, b, a); // 19
 	}
 
-	void DrawSetTextColor(Color col)
+	void draw_set_text_color(Color col)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, Color);
-		return GetVFunc<OriginalFn>(this, 18)(this, col);
+		typedef void(__thiscall* original_fn)(PVOID, Color);
+		return GetVFunc<original_fn>(this, 18)(this, col);
 	}
 
-	void DrawSetTextPos(int x, int y) // maybe
+	void draw_set_text_pos(int x, int y) // maybe
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, int, int);
-		GetVFunc<OriginalFn>(this, 20)(this, x, y);
+		typedef void(__thiscall* original_fn)(PVOID, int, int);
+		GetVFunc<original_fn>(this, 20)(this, x, y);
 	}
 
-	void GetTextSize(HFont font, const wchar_t *text, int &wide, int &tall)
+	void get_text_size(HFont font, const wchar_t *text, int &wide, int &tall)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, HFont, const wchar_t*, int&, int&);
-		GetVFunc<OriginalFn>(this, 76)(this, font, text, wide, tall);
+		typedef void(__thiscall* original_fn)(PVOID, HFont, const wchar_t*, int&, int&);
+		GetVFunc<original_fn>(this, 76)(this, font, text, wide, tall);
 	}
 
-	void DrawPrintText(const wchar_t* text, int textLen)
+	void draw_print_text(const wchar_t* text, int textLen)
 	{
-		typedef void(__thiscall* OriginalFn)(PVOID, const wchar_t*, int, int);
-		GetVFunc<OriginalFn>(this, 22)(this, text, textLen, 0);
+		typedef void(__thiscall* original_fn)(PVOID, const wchar_t*, int, int);
+		GetVFunc<original_fn>(this, 22)(this, text, textLen, 0);
 	}
 }; 
 

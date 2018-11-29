@@ -46,7 +46,7 @@ enum TABS
 	MISC_TAB
 };
 
-void RenderMenu()
+void menu_render()
 {
 	if (!globals::menuopened)
 		return;
@@ -99,7 +99,7 @@ void RenderMenu()
 		ImDrawRectRainbow(curPos.x - 6, curPos.y - 6, globals::screenweight, curPos.y - 2, flSpeed, flRainbow);
 		ImGui::EndGroup();
 
-		ImGui::BeginChild(("##TEST")); //Âñå ôóíêöèè
+		ImGui::BeginChild(("##child"));
 		{
 			ImGui::BeginGroup();
 			ImGui::Spacing();
@@ -117,9 +117,7 @@ void RenderMenu()
 				ImGui::Checkbox("Box", &settings::esp::box);
 				ImGui::Checkbox("Healthbar", &settings::esp::healthbar);
 				ImGui::Checkbox("Name", &settings::esp::name);
-
-				ImGui::SliderFloat("aaa", &settings::esp::unf, 0.f, 15.f);
-
+				ImGui::Checkbox("Team", &settings::esp::team);
 			}
 			else if (tab == SKINS_TAB)
 			{

@@ -115,6 +115,7 @@ unsigned long __stdcall init(void* dll)
 	d3d_hook.unhook_all();
 	panel_hook.unhook_all();
 	client_hook.unhook_all();
+	renderview_hook.unhook_all();
 
 	FreeConsole();
 

@@ -16,6 +16,9 @@ void __fastcall hooked_create_move(void* thiscall, void* _EDX, int sequence_numb
 	if (!globals::input)
 		return;
 
+	//test
+	//printf("hello from createmove \n");
+
 	CUserCmd* pCommand = globals::input->GetUserCmd(sequence_number);
 	if (pCommand)
 	{

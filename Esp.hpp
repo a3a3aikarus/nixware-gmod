@@ -107,7 +107,7 @@ namespace esp
 
 	int FindHead(CBaseEntity* pPlayer)
 	{
-		studiohdr_t *hdr = globals::modelinfo->GetStudioModel(pPlayer->GetModel());
+		studiohdr_t *hdr = globals::modelinfo->GetStudioModel(pPlayer->get_model());
 		if (!hdr)
 			return -1;
 		mstudiobone_t* bone;
@@ -188,9 +188,9 @@ namespace esp
 			auto offset = (std::min)(static_cast<float>(health) / capacity, 1.f);
 			int green = int(health * 2.55f);
 			int red = 255 - green;
-			drawmanager::DrawRectFilled(left - 5.f, top - 1.f, left - 2.f, bottom + 1.f, Color::Black());
+			drawmanager::draw_rect_filled(left - 5.f, top - 1.f, left - 2.f, bottom + 1.f, Color::Black());
 			if (health > 0)
-				drawmanager::DrawRectFilled(left - 4.f, top, left - 3.f, top - offset * (top - bottom), Color(red, green, 0, 255));
+				drawmanager::draw_rect_filled(left - 4.f, top, left - 3.f, top - offset * (top - bottom), Color(red, green, 0, 255));
 		}
 		CBaseEntity *localPlayer = (CBaseEntity*)globals::entitylist->get_entity(globals::engine->get_local_player());
 		Vector localEyePos = localPlayer->get_eye_pos();
@@ -198,7 +198,7 @@ namespace esp
 		//bool bIsVisible = (IsVisible(localPlayer, localEyePos, ply->get_abs_origin()));
 		//IsVisible(localPlayer, localEyePos, headPos);
 		if (settings::esp::box /*&& bIsVisible*/) {
-			drawmanager::DrawOutlinedRect(left, top, right, bottom, Color::Green());
+			drawmanager::draw_outlined_rect(left, top, right, bottom, Color::Green());
 		}
 
 		if (settings::esp::name)
@@ -206,18 +206,18 @@ namespace esp
 			std::string name = ply->get_name();
 			std::wstring widestr = std::wstring(name.begin(), name.end());
 			int tw, th;
-			globals::surface->GetTextSize(drawmanager::fonts::Esp, std::wstring(name.begin(), name.end()).c_str(), tw, th);
+			globals::surface->get_text_size(drawmanager::fonts::esp, std::wstring(name.begin(), name.end()).c_str(), tw, th);
 			ImVec2 pos = ImVec2(left + .5f * (right - left) - tw * .5f - 1.f, top - th * 0.942);
-			drawmanager::DrawString(drawmanager::fonts::Esp, pos.x, pos.y, Color::Green(), name.c_str());
+			drawmanager::draw_string(drawmanager::fonts::esp, pos.x, pos.y, Color::Green(), name.c_str());
 		}
 
-		if (settings::esp::name)
+		if (settings::esp::team && ply->is_player())
 		{
 			std::string team = ply->get_team_name();
 			int tw, th;
-			globals::surface->GetTextSize(drawmanager::fonts::Esp, std::wstring(team.begin(), team.end()).c_str(), tw, th);
+			globals::surface->get_text_size(drawmanager::fonts::esp, std::wstring(team.begin(), team.end()).c_str(), tw, th);
 			ImVec2 pos = ImVec2(left + .5f * (right - left) - tw * .5f - 1.f, bottom + th * -0.100);
-			drawmanager::DrawString(drawmanager::fonts::Esp, pos.x, pos.y, Color::Green(), team.c_str());
+			drawmanager::draw_string(drawmanager::fonts::esp, pos.x, pos.y, Color::Green(), team.c_str());
 		}
 	}
 
@@ -299,6 +299,6 @@ inline void renderesp()
 			continue;
 		*/
 
-		esp::draw_bounding_box(matrix,/* list,*/ ImVec2(globals::screenweight, globals::screenheight), player);
+		esp::draw_bounding_box(matrix, ImVec2(globals::screenweight, globals::screenheight), player);
 	}
 }

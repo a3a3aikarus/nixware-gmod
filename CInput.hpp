@@ -224,48 +224,21 @@ class bf_write;
 
 class CUserCmd {
 public:
-	virtual ~CUserCmd() {};
-
-	CRC32_t GetChecksum(void) const
-	{
-		CRC32_t crc;
-		CRC32_Init(&crc);
-
-		CRC32_ProcessBuffer(&crc, &command_number, sizeof(command_number));
-		CRC32_ProcessBuffer(&crc, &tick_count, sizeof(tick_count));
-		CRC32_ProcessBuffer(&crc, &viewangles, sizeof(viewangles));
-		CRC32_ProcessBuffer(&crc, &aimdirection, sizeof(aimdirection));
-		CRC32_ProcessBuffer(&crc, &forwardmove, sizeof(forwardmove));
-		CRC32_ProcessBuffer(&crc, &sidemove, sizeof(sidemove));
-		CRC32_ProcessBuffer(&crc, &upmove, sizeof(upmove));
-		CRC32_ProcessBuffer(&crc, &buttons, sizeof(buttons));
-		CRC32_ProcessBuffer(&crc, &impulse, sizeof(impulse));
-		CRC32_ProcessBuffer(&crc, &weaponselect, sizeof(weaponselect));
-		CRC32_ProcessBuffer(&crc, &weaponsubtype, sizeof(weaponsubtype));
-		CRC32_ProcessBuffer(&crc, &random_seed, sizeof(random_seed));
-		CRC32_ProcessBuffer(&crc, &mousedx, sizeof(mousedx));
-		CRC32_ProcessBuffer(&crc, &mousedy, sizeof(mousedy));
-
-		CRC32_Final(&crc);
-		return crc;
-	}
-
-	int       command_number;     // 0x04
-	int       tick_count;         // 0x08
-	QAngle    viewangles;         // 0x0C
-	Vector    aimdirection;       // 0x18
-	float     forwardmove;        // 0x24
-	float     sidemove;           // 0x28
-	float     upmove;             // 0x2C
-	int       buttons;            // 0x30
-	unsigned char impulse;            // 0x34
-	int       weaponselect;       // 0x38
-	int       weaponsubtype;      // 0x3C
-	int       random_seed;        // 0x40
-	short     mousedx;            // 0x44
-	short     mousedy;            // 0x46
-	bool      hasbeenpredicted;   // 0x48
-	char      pad_0x4C[0x18];     // 0x4C
+	int       command_number;
+	int       tick_count;
+	QAngle    viewangles;
+	float     forwardmove;
+	float     sidemove;
+	float     upmove;
+	int       buttons;
+	byte	  impulse;
+	int       weaponselect;
+	int       weaponsubtype;
+	int       random_seed;
+	short     mousedx;
+	short     mousedy;
+	bool      hasbeenpredicted;
+	//char      __padding[0x108];
 };
 
 class CVerifiedUserCmd

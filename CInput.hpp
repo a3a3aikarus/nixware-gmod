@@ -238,7 +238,6 @@ public:
 	short     mousedx;
 	short     mousedy;
 	bool      hasbeenpredicted;
-	//char      __padding[0x108];
 };
 
 class CVerifiedUserCmd

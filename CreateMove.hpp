@@ -16,10 +16,8 @@ void __fastcall hooked_create_move(void* thiscall, void* _EDX, int sequence_numb
 	if (!globals::input)
 		return;
 
-	//test
-	//printf("hello from createmove \n");
-
 	CUserCmd* pCommand = globals::input->GetUserCmd(sequence_number);
+
 	if (pCommand)
 	{
 		CBaseEntity *localPlayer = (CBaseEntity*)globals::entitylist->get_entity(globals::engine->get_local_player());

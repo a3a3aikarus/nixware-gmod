@@ -16,21 +16,27 @@ void __fastcall hooked_create_move(void* thiscall, void* _EDX, int sequence_numb
 	if (!globals::input)
 		return;
 
-	CUserCmd* pCommand = globals::input->GetUserCmd(sequence_number);
+	auto cmd = globals::input->cmds + (sequence_number % multiplayer_backup);
 
-	if (pCommand)
+	if (!cmd)
 	{
-		CBaseEntity *localPlayer = (CBaseEntity*)globals::entitylist->get_entity(globals::engine->get_local_player());
-		if (!localPlayer)
-			return;
-
-		CVerifiedUserCmd *pVerifiedCommands = *(CVerifiedUserCmd**)((DWORD)globals::input + 0xC8);
-		CVerifiedUserCmd *pVerified = &pVerifiedCommands[sequence_number % MULTIPLAYER_BACKUP];
-
-		if (pVerified)
-		{
-			pVerified->m_cmd = *pCommand;
-			pVerified->m_crc = CRC32_ProcessSingleBuffer(pCommand, sizeof(pCommand));
-		}
+		return;
 	}
+
+	auto verified_cmd = globals::input->verified_cmds + (sequence_number % multiplayer_backup);
+
+	if (!verified_cmd)
+	{
+		return;
+	}
+
+	CBaseEntity* local_player = (CBaseEntity*)(globals::entitylist->get_entity(globals::engine->get_local_player()));
+
+	if (settings::misc::bhop && cmd->buttons & IN_JUMP && !(local_player->get_flags() & FL_ONGROUND))
+	{
+		cmd->buttons &= ~IN_JUMP;
+	}
+
+	verified_cmd->m_cmd = *cmd;
+	verified_cmd->m_crc = cmd->get_checksum();
 }

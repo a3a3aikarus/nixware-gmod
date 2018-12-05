@@ -10,4 +10,9 @@ namespace settings
 		bool name = true;
 		bool team = true;
 	}
+
+	namespace misc
+	{
+		bool bhop = false;
+	}
 }

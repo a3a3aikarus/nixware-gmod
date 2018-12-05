@@ -14,7 +14,19 @@
 ImFont*  bigFont = nullptr;
 ImFont*  forTabs = nullptr;
 
-void ImDrawRectRainbow(int x, int y, int width, int height, float flSpeed, float &flRainbow)
+int tab = 0;
+
+enum TABS
+{
+	AIMBOT_TAB,
+	TRIGGER_TAB,
+	VISUALS_TAB,
+	SKINS_TAB,
+	COLORS_TAB,
+	MISC_TAB
+};
+
+void imgui_rainbow_rect(int x, int y, int width, int height, float flSpeed, float &flRainbow)
 {
 	ImDrawList* windowDrawList = ImGui::GetWindowDrawList();
 
@@ -33,18 +45,6 @@ void ImDrawRectRainbow(int x, int y, int width, int height, float flSpeed, float
 		windowDrawList->AddRectFilled(ImVec2(x + i, y), ImVec2(width, height), colRainbow.GetU32());
 	}
 }
-
-int tab = 0;
-
-enum TABS
-{
-	AIMBOT_TAB,
-	TRIGGER_TAB,
-	VISUALS_TAB,
-	SKINS_TAB,
-	COLORS_TAB,
-	MISC_TAB
-};
 
 void menu_render()
 {
@@ -96,7 +96,7 @@ void menu_render()
 		curPos.x += curWindowPos.x;
 		curPos.y += curWindowPos.y;
 		ImDrawList* windowDrawList = ImGui::GetWindowDrawList();
-		ImDrawRectRainbow(curPos.x - 6, curPos.y - 6, globals::screenweight, curPos.y - 2, flSpeed, flRainbow);
+		imgui_rainbow_rect(curPos.x - 6, curPos.y - 6, globals::screenweight, curPos.y - 2, flSpeed, flRainbow);
 		ImGui::EndGroup();
 
 		ImGui::BeginChild(("##child"));
@@ -127,6 +127,7 @@ void menu_render()
 			}
 			else if (tab == MISC_TAB)
 			{
+				ImGui::Checkbox("BunnyHop", &settings::misc::bhop);
 			}
 			ImGui::EndGroup();
 

@@ -1,4 +1,4 @@
-﻿#include <Windows.h>
+#include <Windows.h>
 #include "fmath.hpp"
 #include <thread>
 #include <chrono>
@@ -20,8 +20,23 @@ vfunc_hook renderview_hook;
 vfunc_hook d3d_hook;
 vfunc_hook client_hook;
 
-using color_t = uint8_t[4];
 void(__cdecl* datapaths)(void) = nullptr;
+
+void unload(void* dll)
+{
+	SetWindowLongPtrW(FindWindowW(L"Valve001", nullptr), GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(original::wnd_proc));
+
+	d3d_hook.unhook_all();
+	panel_hook.unhook_all();
+	client_hook.unhook_all();
+	renderview_hook.unhook_all();
+
+	FreeConsole();
+
+	ImGui_ImplDX9_Shutdown();
+
+	FreeLibraryAndExitThread(HMODULE(dll), 0);
+}
 
 unsigned long __stdcall init(void* dll)
 {
@@ -110,26 +125,20 @@ unsigned long __stdcall init(void* dll)
 
 	for (; !(GetAsyncKeyState(VK_HOME) & 1); std::this_thread::sleep_for(std::chrono::milliseconds(25)));
 
-	SetWindowLongPtrW(FindWindowW(L"Valve001", nullptr), GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(original::wnd_proc));
-
-	d3d_hook.unhook_all();
-	panel_hook.unhook_all();
-	client_hook.unhook_all();
-	renderview_hook.unhook_all();
-
-	FreeConsole();
-
-	ImGui_ImplDX9_Shutdown();
-
-	FreeLibraryAndExitThread(HMODULE(dll), 0);
+	unload(dll);
 }
 
-int __stdcall DllMain(HINSTANCE dll, DWORD reason, LPVOID)
+int __stdcall dllmain(HINSTANCE dll, DWORD reason, LPVOID)
 {
 	DisableThreadLibraryCalls(dll);
-	if (reason == DLL_PROCESS_ATTACH)
+	switch (reason)
 	{
+	case DLL_PROCESS_ATTACH:	
 		CreateThread(nullptr, 0, init, dll, 0, nullptr);
+		break;
+	case DLL_PROCESS_DETACH:	
+		unload(dll);
+		break;	
 	}
 
 	return 1;

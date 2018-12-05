@@ -16,19 +16,13 @@ void __fastcall hooked_create_move(void* thiscall, void* _EDX, int sequence_numb
 	if (!globals::input)
 		return;
 
-	auto cmd = globals::input->cmds + (sequence_number % multiplayer_backup);
-
-	if (!cmd)
-	{
+	CUserCmd* cmd = globals::input->cmds + (sequence_number % multiplayer_backup);
+	if (!cmd)	
 		return;
-	}
 
-	auto verified_cmd = globals::input->verified_cmds + (sequence_number % multiplayer_backup);
-
-	if (!verified_cmd)
-	{
+	CVerifiedUserCmd* verified_cmd = globals::input->verified_cmds + (sequence_number % multiplayer_backup);
+	if (!verified_cmd)	
 		return;
-	}
 
 	CBaseEntity* local_player = (CBaseEntity*)(globals::entitylist->get_entity(globals::engine->get_local_player()));
 

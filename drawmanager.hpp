@@ -21,7 +21,7 @@ namespace drawmanager
 		globals::surface->set_font_glyph_set(drawmanager::fonts::watermark, ("Arial"), 16, 800, 0, 0, FONTFLAG_OUTLINE /*| FONTFLAG_ANTIALIAS*/);
 	}
 
-	void DrawLine(int x0, int y0, int x1, int y1, Color color)
+	void draw_line(int x0, int y0, int x1, int y1, Color color)
 	{
 		globals::surface->draw_set_color(color);
 		globals::surface->draw_line(x0, y0, x1, y1);

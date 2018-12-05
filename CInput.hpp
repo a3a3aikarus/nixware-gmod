@@ -42,7 +42,6 @@
 #define NUM_BYTES 256
 #define LittleLong( val )     ( val )
 #define CRC32_XOR_VALUE  0xFFFFFFFFUL
-#define MULTIPLAYER_BACKUP 150
 
 typedef unsigned long CRC32_t;
 #define CRC32_INIT_VALUE 0xFFFFFFFFUL
@@ -54,6 +53,8 @@ void CRC32_Init(CRC32_t *pulCRC) {
 void CRC32_Final(CRC32_t *pulCRC) {
 	*pulCRC ^= CRC32_XOR_VALUE;
 }
+
+constexpr auto multiplayer_backup = 90;
 
 static const CRC32_t pulCRCTable[NUM_BYTES] =
 {
@@ -222,22 +223,54 @@ inline CRC32_t CRC32_ProcessSingleBuffer(const void *p, int len) {
 class bf_read;
 class bf_write;
 
-class CUserCmd {
+struct CUserCmd
+{
+	std::int32_t command_nr;
+	std::int32_t tick_count;
+	Angle        view_angles;
+	float        fwd_move;
+	float        side_move;
+	float        up_move;
+	std::int32_t buttons;
+	std::uint8_t impulse;
+	std::size_t  weapon;
+	std::int32_t weapon_type;
+	std::int32_t random_seed;
+	std::int16_t mouse_dx;
+	std::int16_t mouse_dy;
+	bool         has_been_predicted;
+
+private:
+	std::uint8_t __pad[0x108]; // WARNING: Removing this will lead to dinosaurs with
+							   // laser guns spawning behind you
+
 public:
-	int       command_number;
-	int       tick_count;
-	QAngle    viewangles;
-	float     forwardmove;
-	float     sidemove;
-	float     upmove;
-	int       buttons;
-	byte	  impulse;
-	int       weaponselect;
-	int       weaponsubtype;
-	int       random_seed;
-	short     mousedx;
-	short     mousedy;
-	bool      hasbeenpredicted;
+	CRC32_t get_checksum() const
+	{
+		CRC32_t crc{};
+
+		CRC32_Init(&crc);
+		CRC32_ProcessBuffer(&crc, &command_nr, sizeof(command_nr));
+		CRC32_ProcessBuffer(&crc, &tick_count, sizeof(tick_count));
+		CRC32_ProcessBuffer(&crc, &view_angles, sizeof(view_angles));
+		CRC32_ProcessBuffer(&crc, &fwd_move, sizeof(fwd_move));
+		CRC32_ProcessBuffer(&crc, &side_move, sizeof(side_move));
+		CRC32_ProcessBuffer(&crc, &up_move, sizeof(up_move));
+		CRC32_ProcessBuffer(&crc, &buttons, sizeof(buttons));
+		CRC32_ProcessBuffer(&crc, &impulse, sizeof(impulse));
+		CRC32_ProcessBuffer(&crc, &weapon, sizeof(weapon));
+		CRC32_ProcessBuffer(&crc, &weapon_type, sizeof(weapon_type));
+		CRC32_ProcessBuffer(&crc, &random_seed, sizeof(random_seed));
+		CRC32_ProcessBuffer(&crc, &mouse_dx, sizeof(mouse_dx));
+		CRC32_ProcessBuffer(&crc, &mouse_dy, sizeof(mouse_dy));
+
+		CRC32_ProcessBuffer(
+			&crc, __pad + 5, sizeof(bool)); // I haven't checked out what this is
+
+		CRC32_Final(&crc);
+
+		return crc;
+	}
 };
 
 class CVerifiedUserCmd
@@ -249,12 +282,11 @@ public:
 
 class CInput
 {
+	std::uint8_t __pad[sizeof(std::int32_t) * 49];
+
 public:
-	CUserCmd *GetUserCmd(int sqnum)
-	{
-		typedef CUserCmd*(__thiscall* Fn)(void*, int);
-		return GetVFunc<Fn>(this, 8)(this, sqnum);
-	}
+	CUserCmd*         cmds;
+	CVerifiedUserCmd* verified_cmds;
 };
 
 namespace globals

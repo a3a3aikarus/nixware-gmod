@@ -128,7 +128,7 @@ unsigned long __stdcall init(void* dll)
 	unload(dll);
 }
 
-int __stdcall dllmain(HINSTANCE dll, DWORD reason, LPVOID)
+int __stdcall DllMain(HINSTANCE dll, DWORD reason, LPVOID)
 {
 	DisableThreadLibraryCalls(dll);
 	switch (reason)

